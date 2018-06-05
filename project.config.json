@@ -1,0 +1,13 @@
+{
+	"client": "./client",
+	"svr": "./server",
+	"miniprogramRoot": "./client",
+	"qcloudRoot": "./server",
+	"setting": {
+		"newFeature": true
+	},
+	"appid": "wxbebc3ca2e658b17a",
+	"projectname": "weChatSmallProgramDemo-shoppingMall",
+	"compileType": "miniprogram",
+	"condition": {}
+}
