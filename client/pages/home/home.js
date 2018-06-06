@@ -35,7 +35,14 @@ Page({
       name: '商品5',
       price: 500,
       source: '国内·广东',
-    }], // 商品列表
+    }, {
+      id: 6,
+      image: 'https://s3.cn-north-1.amazonaws.com.cn/u-img/product2.jpg',
+      name: '商品6',
+      price: 500,
+      source: '国内·广东',
+    }
+    ], // 商品列表
   },
 
   /**
