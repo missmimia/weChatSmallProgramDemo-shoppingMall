@@ -4,9 +4,13 @@
 	"miniprogramRoot": "./client",
 	"qcloudRoot": "./server",
 	"setting": {
+		"urlCheck": true,
+		"es6": false,
+		"postcss": false,
+		"minified": false,
 		"newFeature": true
 	},
-	"appid": "wxbebc3ca2e658b17a",
+	"appid": "wx5c806ed7d4ee2cff",
 	"projectname": "weChatSmallProgramDemo-shoppingMall",
 	"compileType": "miniprogram",
 	"condition": {}
