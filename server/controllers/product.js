@@ -9,5 +9,16 @@ module.exports = {
 
   list: async ctx => {
     ctx.state.data = await DB.query("SELECT * FROM product;")
-  } // 为什么这里要赋值给 state.data
+  }, // 为什么这里要赋值给 state.data
+
+  detail: async ctx => {
+    let productId = + ctx.params.id
+
+    if (!isNaN(productId)) {
+      ctx.state.data = (await DB.query('select * from product where product.id = ?', [productId]))[0]
+    } else {
+      ctx.state.data = {}
+    }
+
+  }
 }

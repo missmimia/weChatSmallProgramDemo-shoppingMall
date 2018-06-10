@@ -28,7 +28,7 @@
 </view> -->
 
 <view class="product">
-  <navigator wx:for="{{productList}}" wx:key="id" wx:if="{{index!==0}}" class='product-card'>
+  <navigator wx:for="{{productList}}" wx:key="id" wx:if="{{index!==0}}" class='product-card' url="/pages/detail/detail?id={{item.id}}">
     <image src="{{item.image}}" class='product-image' mode="widthFix"></image>
     <view class='product-name'>{{item.name}}</view>
     <view class='product-meta'>
