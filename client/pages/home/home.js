@@ -11,23 +11,16 @@ Page({
     productList: [], // 商品列表
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
-  onLoad: function (options) {
-    this.getProductList();
-  },
-
   getProductList() {
     wx.showLoading({
       title: '商品数据加载中...',
     })
-    qcloud.request({
-    
-      // url: 'https://zexsphsr.qcloud.la/weapp/product',
-      url: config.service.productList,
 
+    qcloud.request({
+      url: config.service.productList,
       success: result => {
+        wx.hideLoading()
+
         let data = result.data
         if (!data.code) {
           this.setData({
@@ -40,16 +33,62 @@ Page({
           })
         }
       },
-      fail: result => {
+
+      fail: () => {
+        wx.hideLoading()
+
         wx.showToast({
           icon: 'none',
           title: '商品数据加载错误',
         })
-      },
-      complete: () => {
-        wx.hideLoading();
+
       }
     })
+  },
+
+  addToTrolley(event) {
+    let productId = event.currentTarget.dataset.id
+    console.log(productId);
+
+    if (productId) {
+      qcloud.request({
+        url: config.service.addTrolley,
+        login: true,
+        method: 'PUT',
+        data: {
+          id: productId
+        },
+        success: result => {
+          console.log('home addToTrolley', result)
+          let data = result.data
+
+          if (!data.code) {
+            wx.showToast({
+              title: '已添加到购物车',
+            })
+          } else {
+            wx.showToast({
+              icon: 'none',
+              title: '添加到购物车失败',
+            })
+          }
+        },
+        fail: () => {
+          wx.showToast({
+            icon: 'none',
+            title: '添加到购物车失败',
+          })
+        }
+      })
+
+    }
+  },
+
+  /**
+     * 生命周期函数--监听页面加载
+     */
+  onLoad: function (options) {
+    this.getProductList();
   },
 
   /**

@@ -2,6 +2,8 @@
 const qcloud = require('../../vendor/wafer2-client-sdk/index');
 const config = require('../../config.js')
 
+const app = getApp();
+
 Page({
 
   /**
@@ -18,36 +20,26 @@ Page({
 
   },
 
-  onTapLogin: () => {
-    // 设置登录地址 https://cloud.tencent.com/document/product/619/11449
-    // qcloud.setLoginUrl('https://199447.qcloud.la/weapp/login');
-    qcloud.setLoginUrl(config.service.loginUrl);
-    
-    qcloud.login({
-      success: (userInfo) => {
-        console.log('登录成功', userInfo);
+  onTapLogin: function () {
+    app.login({
+      success: ({ userInfo }) => {
         this.setData({
-          userInfo: userInfo
-        })
-      },
-      fail: (err) => {
-        console.log('登录失败', err);
+          userInfo
+        });
       }
     })
   },
-  getUserInfo: () => {
-    qcloud.request({
-      url: config.service.requestUrl,
-      login: true,
-      success: result => {
-        console.log(result)
-      },
-      fail: result => {
-        console.log(result)
-      },
-      complete: () => {
-        // wx.hideLoading();
-      }
+
+  onTapAddress: function () {
+    wx.showToast({
+      title: '暂未开放该功能',
+      icon: 'none'
+    })
+  },
+  onTapKf: function () {
+    wx.showToast({
+      title: '暂未开放该功能',
+      icon: 'none'
     })
   },
   //  页面载入时，检查用户是否登陆、处在一个会话当中
@@ -76,7 +68,7 @@ Page({
    */
   onShow: function () {
 
-    this.checkSession({
+    app.checkSession({
       success: ({ userInfo }) => {
         this.setData({
           userInfo: userInfo

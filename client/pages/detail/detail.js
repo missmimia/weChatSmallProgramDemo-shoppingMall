@@ -1,6 +1,8 @@
-// pages/detail.js
-const qcloud = require('../../vendor/wafer2-client-sdk/index');
-const config = require('../../config.js')
+// pages/detail/detail.js
+
+const qcloud = require('../../vendor/wafer2-client-sdk/index')
+const config = require('../../config')
+const _ = require('../../utils/util')
 
 Page({
 
@@ -8,58 +10,130 @@ Page({
    * 页面的初始数据
    */
   data: {
-    product: {
-    }
+    product: {},
+  },
+
+  getProduct(id) {
+    wx.showLoading({
+      title: '商品数据加载中...',
+    })
+
+    qcloud.request({
+      url: config.service.productDetail + id,
+      success: result => {
+        wx.hideLoading()
+
+        let data = result.data
+        console.log(data);
+
+        if (!data.code) {
+          this.setData({
+            product: data.data
+          })
+        } else {
+          setTimeout(() => {
+            wx.navigateBack()
+          }, 2000)
+        }
+      },
+      fail: () => {
+        wx.hideLoading()
+
+        setTimeout(() => {
+          wx.navigateBack()
+        }, 2000)
+      }
+    })
+  },
+
+  buy() {
+    wx.showLoading({
+      title: '商品购买中...',
+    })
+
+    let product = Object.assign({
+      count: 1
+    }, this.data.product)
+
+    qcloud.request({
+      url: config.service.addOrder,
+      login: true,
+      method: 'POST',
+      data: {
+        list: [product]
+      },
+      success: result => {
+        wx.hideLoading()
+
+        let data = result.data
+
+        if (!data.code) {
+          wx.showToast({
+            title: '商品购买成功',
+          })
+        } else {
+          wx.showToast({
+            icon: 'none',
+            title: '商品购买失败',
+          })
+        }
+      },
+      fail: () => {
+        wx.hideLoading()
+
+        wx.showToast({
+          icon: 'none',
+          title: '商品购买失败',
+        })
+      }
+    })
+  },
+
+  addToTrolley() {
+    wx.showLoading({
+      title: '正添到购物车...',
+    })
+
+    qcloud.request({
+      url: config.service.addTrolley,
+      login: true,
+      method: 'PUT',
+      data: {
+        id: this.data.product.id,
+      },
+      success: result => {
+        wx.hideLoading()
+
+        let data = result.data
+
+        if (!data.code) {
+          wx.showToast({
+            title: '已添加到购物车',
+          })
+        } else {
+          wx.showToast({
+            icon: 'none',
+            title: '添加到购物车失败',
+          })
+        }
+      },
+      fail: () => {
+        wx.hideLoading()
+
+        wx.showToast({
+          icon: 'none',
+          title: '添加到购物车失败',
+        })
+      }
+    })
+
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    console.log(options)
-    this.getProductDetail(options.id)
-  },
-
-  getProductDetail(id) {
-
-    wx.showLoading({
-      title: '正在加载商品详情',
-    })
-
-    qcloud.request({
-
-      // url: 'https://zexsphsr.qcloud.la/weapp/product',
-      url: config.service.productDetail + id,
-
-      success: result => {
-
-        console.log(result);
-
-        let data = result.data
-        if (!data.code) {
-          this.setData({
-            productList: data.data
-          })
-        } else {
-          wx.showToast({
-            icon: 'none',
-            title: '商品数据加载错误',
-          })
-          setTimeout(() => {
-            wx.navigateBack()
-          }, 2000)
-        }
-      },
-      fail: result => {
-        wx.showToast({
-          icon: 'none',
-          title: '商品数据加载错误',
-        })
-      },
-      complete: () => {
-        wx.hideLoading();
-      }
-    })
+    this.getProduct(options.id)
   },
 
   /**
