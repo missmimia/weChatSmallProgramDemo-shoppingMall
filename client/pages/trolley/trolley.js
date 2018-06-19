@@ -29,8 +29,6 @@ Page({
         this.getTrolley()
       }
     })
-
-
   },
 
   getTrolley() {
@@ -126,53 +124,150 @@ Page({
 
   calcAccount(trolleyCheckMap, trolleyList) {
     let account = 0;
-
     trolleyList.forEach((item) => {
       account = trolleyCheckMap[item.id] ? account + item.price * item.count : account;
-
     })
-
     return account;
   },
 
-  onTapEdit() {
-    let isTrolleyEdit = this.data.isTrolleyEdit;
-    isTrolleyEdit = !isTrolleyEdit
+  onTapEditTrolley() {
+    let isTrolleyEdit = this.data.isTrolleyEdit
 
-    this.setData({
-      isTrolleyEdit: isTrolleyEdit
-    })
+    if (isTrolleyEdit) {
+      this.updateTrolley()
+    } else {
+      this.setData({
+        isTrolleyEdit: !isTrolleyEdit
+      })
+    }
   },
 
   // 增加单项数量
   // 减少单项数量
   adjustTrolleyProductCount(event) {
-    let count = event.currentTarget.dataset.count
+
     let currentId = event.currentTarget.dataset.id
     let type = event.currentTarget.dataset.type
 
     let trolleyCheckMap = this.data.trolleyCheckMap
-    let trolleyList = this.data.trolleyList 
+    let trolleyList = this.data.trolleyList
 
-    // count = trolleyList[currentId]['id'] === item.id ? count + 1 : count;
-
-    trolleyList.map((item) => {
-      if (trolleyList[currentId]['id'] === item.id) {
-        console.log(trolleyList[currentId])
-        console.log(item)
-        //  trolleyList[currentId]['count'] = count + 1
+    trolleyList.map((item, index) => {
+      if (currentId === item.id) {
+        if (type === "minus") {
+          if (item.count <= 1) {
+            trolleyCheckMap.splice(index, 1)
+            trolleyList.splice(index, 1)
+          } else {
+            item.count -= 1
+          }
+        } else {
+          item.count += 1
+        }
       }
     })
+    let trolleyAccount = this.calcAccount(trolleyCheckMap, trolleyList)
+
+    // 当购物车为空 同步到服务器
+    if (!trolleyList.length) {
+      this.updateTrolley()
+    }
 
     this.setData({
-      trolleyList: trolleyList
-    }, () => {
-      // console.log(count, trolleyList)
+      trolleyList: trolleyList,
+      trolleyCheckMap: trolleyCheckMap,
+      trolleyAccount: trolleyAccount
     })
   },
 
+  updateTrolley() {
+    wx.showLoading({
+      title: '更新购物车数据...',
+    })
 
+    let trolleyList = this.data.trolleyList
 
+    qcloud.request({
+      url: config.service.updateTrolley,
+      method: 'POST',
+      login: true,
+      data: {
+        list: trolleyList
+      },
+      success: result => {
+        wx.hideLoading()
+
+        let data = result.data
+
+        if (!data.code) {
+          this.setData({
+            isTrolleyEdit: false
+          })
+        } else {
+          wx.showToast({
+            icon: 'none',
+            title: '更新购物车失败'
+          })
+        }
+      },
+      fail: () => {
+        wx.hideLoading()
+
+        wx.showToast({
+          icon: 'none',
+          title: '更新购物车失败'
+        })
+      }
+    })
+  },
+
+  onTapPay() {
+    if (!this.data.trolleyAccount) return
+
+    wx.showLoading({
+      title: '结算中..',
+    })
+
+    let trolleyList = this.data.trolleyList
+    let trolleyCheckMap = this.data.trolleyCheckMap
+
+    let needToPayProductList = trolleyList.filter(item => {
+      return !!trolleyCheckMap[item.id]
+    })
+
+    qcloud.request({
+      url: config.service.addOrder,
+      login: true,
+      method: 'POST',
+      data: {
+        list: needToPayProductList
+      },
+      success: result => {
+        wx.hideLoading()
+
+        let data = result.data
+
+        if (!data.code) {
+          wx.showToast({
+            title: '商品购买成功',
+          })
+        } else {
+          wx.showToast({
+            icon: 'none',
+            title: '商品购买失败',
+          })
+        }
+      },
+      fail: () => {
+        wx.hideLoading()
+
+        wx.showToast({
+          icon: 'none',
+          title: '商品购买失败',
+        })
+      }
+    })
+  },
 
   /**
    * 生命周期函数--监听页面加载
