@@ -35,7 +35,6 @@ Page({
       login: true,
       success: result => {
         let data = result.data
-        console.log(data)
         if (!data.code) {
           this.setData({
             orderList: data.data

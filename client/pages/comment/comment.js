@@ -1,68 +1,35 @@
-// pages/add-comment.js
+// pages/comment.js
 const qcloud = require('../../vendor/wafer2-client-sdk/index');
 const config = require('../../config.js')
+const _ = require('../../utils/util.js')
 Page({
-
   /**
    * 页面的初始数据
    */
   data: {
-    product: {},
-    commentValue: '', // 评论内容
+    commentList: [], // 评论列表
   },
 
-  onInput(event) {
-    // event.detail = { value, cursor }
-    this.setData({
-      commentValue: event.detail.value.trim()
-    })
-  },
-
-  addComment(event) {
-    console.log(event)
-    let content = this.data.commentValue;
-    if (!content) return; // ???????????????? 
-
-    wx.showLoading({
-      title: '正在发表评论',
-    })
-
+  getCommentList(id) {
     qcloud.request({
-      url: config.service.addComment,
-      method: 'PUT',
-      login: true,
+      url: config.service.commentList,
       data: {
-        content: this.data.commentValue,
-        product_id: this.data.product.id
+        product_id: id
       },
-      success: (res) => {
-        wx.hideLoading()
-        let data = res.data
-
+      success: result => {
+        console.log(20, result)
+        let data = result.data
         if (!data.code) {
-          wx.showToast({
-            title: '评论成功',
-          })
-
-          setTimeout(() => {
-            wx.navigateBack()
-          }, 1500)
-        } else {
-          wx.showToast({
-            icon: 'none',
-            title: '发表评论失败'
+          this.setData({
+            // commentList: data.data.map(item => {
+            //   let itemDate = new Date(item.create_time)
+            //   item.createTime = _.formatTime(itemDate)
+            //   return item
+            // })
           })
         }
       },
-      fail: () => {
-        wx.hideLoading()
-
-        wx.showToast({
-          title: '评论失败',
-        })
-      },
     })
-
   },
 
   /**
@@ -80,28 +47,22 @@ Page({
     this.setData({
       product: product
     })
+
+    this.getCommentList(product.id)
   },
 
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
-  onReady: function() {
-
-  },
-
+  onReady: function() {},
   /**
    * 生命周期函数--监听页面显示
    */
-  onShow: function() {
-
-  },
-
+  onShow: function() {},
   /**
    * 生命周期函数--监听页面隐藏
    */
-  onHide: function() {
-
-  },
+  onHide: function() {},
 
   /**
    * 生命周期函数--监听页面卸载
@@ -109,21 +70,18 @@ Page({
   onUnload: function() {
 
   },
-
   /**
    * 页面相关事件处理函数--监听用户下拉动作
    */
   onPullDownRefresh: function() {
 
   },
-
   /**
    * 页面上拉触底事件的处理函数
    */
   onReachBottom: function() {
 
   },
-
   /**
    * 用户点击右上角分享
    */
